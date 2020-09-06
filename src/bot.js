@@ -10,7 +10,7 @@ client.on('ready', () => {
     console.log(`${client.user.tag} has logged in`);
 });
 
-client.on('message', (message) => {
+client.on('message',async (message) => {
 
     //to control bot messages
     if(message.author.bot) return;
@@ -29,8 +29,11 @@ client.on('message', (message) => {
             if(args.length === 0) return message.reply('Please provide an ID');
             const member = message.guild.members.cache.get(args[0]);
 
-            if(member) {
-                member.kick();
+            if (member) {
+                member
+                  .kick()
+                  .then((member) => message.channel.send(`${member} was kicked.`))
+                  .catch((err) => message.channel.send('I cannot kick that user :('));
             } else {
                 message.channel.send('That member Not found');
             }
@@ -40,11 +43,13 @@ client.on('message', (message) => {
             if(args.length === 0) return message.reply('Please provide an ID');
             const member = message.guild.members.cache.get(args[0]);
 
-            if(member) {
-                member.ban();
-            } else {
-                message.channel.send('That member Not found');
-            }
+            try {
+                const user = await message.guild.members.ban(args[0]);
+                message.channel.send('User was banned successfully');
+              } catch (err) {
+                console.log(err);
+                message.channel.send('An error occured. Either I do not have permissions or the user was not found');
+              }
 
         }
     }
@@ -63,6 +68,12 @@ client.on('message', (message) => {
     }
     else if (message.content.toLowerCase() === 'online?') {
         message.reply("Yup, hay " + message.author.username)
+    }
+    else if (message.content.toLowerCase() === 'how are you?') {
+        message.reply("I am Fine, nice to have you " + message.author.username)
+    }
+    else if (message.content.toLowerCase() === 'thanks') {
+        message.reply("AnyTime <3 " + message.author.username)
     }
     else if (message.content.toLowerCase().match("time|what time is it")) {
         message.reply("It is " + time().format('MMM DD h:mm A'));
